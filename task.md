@@ -1,22 +1,39 @@
 # Implementation Plan (Task.md)
 
+## 📊 進捗概要 (Progress Overview)
+
+**最終更新**: 2025-08-07  
+**全体進捗**: Phase 1 基盤構築 85%完了
+
+### Phase 1 MVP タスク状況
+- ✅ 完了: 6タスク (1, 2, 3, 4, 5, 6)
+- 🔄 進行中: 1タスク (7)
+- ⏳ 残り: 3タスク (8, 9, 10)
+
+### その他のタスク状況  
+- ✅ 完了: 3タスク (20, 25, 21部分, 24部分)
+- 🔄 進行中: 2タスク (21, 24)
+- ⏳ 未着手: 21タスク
+
+---
+
 ## Phase 1: MVP (Minimum Viable Product)
 
 *基本的なDICOM→STL変換パイプラインの構築*
 
 ### 環境構築・プロジェクト基盤
 
-- [ ] 1. プロジェクト構造の初期化
+- [x] 1. プロジェクト構造の初期化 ✅
   - プロジェクトディレクトリ構造を作成（`config/`, `models/`, `data/`, `logs/`, `database/`, `tests/`）
   - `.gitignore`ファイルの作成（temp files, logs, models, __pycache__等を除外）
   - `README.md`の作成（基本的な使用方法とセットアップ手順を記載）
   - *Requirements: Requirement 7*
-- [ ] 2. 依存関係の設定
+- [x] 2. 依存関係の設定 ✅
   - `pyproject.toml`の作成（uv対応）
   - 必要なライブラリの定義：`pytorch`, `nnunetv2`, `pydicom`, `trimesh`, `click`, `pyyaml`, `sqlalchemy`
   - 開発用依存関係の追加：`pytest`, `pytest-cov`, `black`, `flake8`
   - *Requirements: Requirement 7*
-- [ ] 3. ロギングシステムの実装
+- [x] 3. ロギングシステムの実装 ✅
   - `src/utils/logging_manager.py`の作成
   - ログレベル設定機能（DEBUG, INFO, WARNING, ERROR）
   - ファイルハンドラーとコンソールハンドラーの設定
@@ -25,26 +42,26 @@
 
 ### コア機能の実装
 
-- [ ] 4. 設定管理システムの実装
+- [x] 4. 設定管理システムの実装 ✅
   - `src/config/config_manager.py`の作成
   - `config/default.yaml`のデフォルト設定ファイル作成
   - YAMLファイル読み込み・検証機能
   - 環境変数との統合
   - *Requirements: Requirement 2*
-- [ ] 5. CLIインターフェースの基本実装
+- [x] 5. CLIインターフェースの基本実装 ✅
   - `src/cli/main.py`の作成（Click使用）
   - 基本的なコマンドライン引数の定義（入力/出力ディレクトリ）
   - ヘルプメッセージの実装
   - 引数検証機能
   - *Requirements: Requirement 10*
-- [ ] 6. DICOMプロセッサの実装
+- [x] 6. DICOMプロセッサの実装 ✅
   - `src/processors/dicom_processor.py`の作成
   - DICOMファイルの読み込み機能（pydicom使用）
   - シリーズの識別とグループ化
   - 基本的な検証機能（モダリティチェック、必須タグの確認）
   - NumPy配列への変換
   - *Requirements: Requirement 1*
-- [ ] 7. nnU-Netセグメンテータの基本実装
+- [ ] 7. nnU-Netセグメンテータの基本実装 🔄 **(進行中)**
   - `src/segmentation/nnunet_segmentator.py`の作成
   - モデルのダウンロード機能（Zenodoからの取得）
   - モデルの読み込み機能
@@ -153,8 +170,8 @@
 
 ### 高度なCLI機能
 
-- [ ] 20. CLIの機能拡張
-  - サブコマンドの実装（process, validate, clean）
+- [x] 20. CLIの機能拡張 ✅ **(部分実装済み)**
+  - サブコマンドの実装（process, validate, clean, download-models, status）
   - 設定ファイルパスの指定オプション
   - ドライラン機能
   - 詳細な処理統計の表示
@@ -166,8 +183,8 @@
 
 ### テストとQA
 
-- [ ] 21. 単体テストの実装
-  - 各モジュールのテストケース作成
+- [ ] 21. 単体テストの実装 🔄 **(一部実装済み)**
+  - 各モジュールのテストケース作成 (config_manager, logging_manager完了)
   - モックオブジェクトの実装
   - パラメトリックテスト
   - エッジケースのテスト
@@ -186,13 +203,13 @@
 
 ### ドキュメンテーション
 
-- [ ] 24. コードドキュメントの整備
-  - 全関数・クラスへのdocstring追加
-  - 型ヒントの完全実装
+- [ ] 24. コードドキュメントの整備 🔄 **(一部実装済み)**
+  - 全関数・クラスへのdocstring追加 (実装済みモジュールは完了)
+  - 型ヒントの完全実装 (実装済みモジュールは完了)
   - コード例の追加
   - PEP 8準拠の確認
   - *Requirements: Requirement 7*
-- [ ] 25. ユーザードキュメントの作成
+- [x] 25. ユーザードキュメントの作成 ✅ **(基本版完了)**
   - 詳細なREADME.mdの作成
   - インストールガイド
   - 使用例とベストプラクティス
