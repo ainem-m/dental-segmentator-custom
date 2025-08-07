@@ -1,0 +1,59 @@
+# Dental Segmentator Default Configuration
+# This file contains default settings for the dental segmentator application
+
+application:
+  name: "dental-segmentator"
+  version: "1.0.0"
+  
+# Processing configuration
+processing:
+  input_directory: "./data/input"
+  output_directory: "./data/output"
+  temp_directory: "./data/temp"
+  parallel_jobs: 2                    # Number of parallel processing jobs
+  batch_size: 1                      # Batch size for processing multiple cases
+  cleanup_temp_files: true           # Remove temporary files after processing
+
+# Model configuration
+models:
+  base_path: "./models"
+  dental_segmentator_url: "https://zenodo.org/records/10829675/files/model.zip"
+  dental_segmentator_checksum: ""    # SHA256 checksum for model verification
+  auto_download: true                # Automatically download models if missing
+  
+# Segmentation parameters
+segmentation:
+  model_name: "dental_segmentator_v1"
+  confidence_threshold: 0.5          # Minimum confidence threshold for segmentation
+  post_processing: true              # Enable post-processing of segmentation results
+  mesh_optimization:
+    enable_smoothing: true           # Apply mesh smoothing
+    smoothing_iterations: 5          # Number of smoothing iterations
+    enable_simplification: true     # Apply mesh simplification
+    simplification_ratio: 0.1       # Mesh simplification ratio (0.0-1.0)
+    
+# Hardware configuration
+hardware:
+  gpu_enabled: true                  # Enable GPU acceleration if available
+  gpu_memory_limit: 8192            # GPU memory limit in MB
+  cpu_threads: -1                   # Number of CPU threads (-1 = auto-detect)
+  memory_limit: 16384               # System memory limit in MB
+  
+# Logging configuration
+logging:
+  level: "INFO"                     # Log level: DEBUG, INFO, WARNING, ERROR
+  max_file_size: "100MB"           # Maximum log file size before rotation
+  backup_count: 5                  # Number of backup log files to keep
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# Database configuration
+database:
+  type: "sqlite"                   # Database type (currently only sqlite supported)
+  path: "./database/dental_segmentator.db"  # Database file path
+  connection_timeout: 30           # Database connection timeout in seconds
+  
+# Security and privacy configuration
+security:
+  anonymize_dicom_tags: true       # Remove/anonymize personal information from DICOM
+  secure_temp_cleanup: true       # Securely delete temporary files
+  log_sensitive_info: false       # Prevent logging of sensitive information
