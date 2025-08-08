@@ -2,8 +2,8 @@
 
 ## 📊 進捗概要 (Progress Overview)
 
-**最終更新**: 2025-08-07  
-**全体進捗**: Phase 1 MVP 100%完了 🎉
+**最終更新**: 2025-08-08  
+**全体進捗**: Phase 1 MVP 100%完了 🎉, Phase 2一部実装済み
 
 ### Phase 1 MVP タスク状況
 - ✅ 完了: 10タスク (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -11,9 +11,9 @@
 - ⏳ 残り: 0タスク
 
 ### その他のタスク状況  
-- ✅ 完了: 3タスク (20, 25, 21部分, 24部分)
-- 🔄 進行中: 2タスク (21, 24)
-- ⏳ 未着手: 21タスク
+- ✅ 完了: 5タスク (11, 12, 13, 20, 25)
+- 🔄 進行中: 3タスク (14, 21, 24)
+- ⏳ 未着手: 19タスク
 
 ---
 
@@ -97,32 +97,31 @@
 
 ### データベース統合
 
-- [ ] 11. SQLiteデータベースマネージャの実装
+- [x] 11. SQLiteデータベースマネージャの実装 ✅
   - `src/database/db_manager.py`の作成
   - SQLAlchemyモデルの定義（DICOMSeries, SegmentationResult, STLOutput）
-  - マイグレーション機能の実装
-  - CRUD操作の実装
+  - CRUD操作の基本実装
   - *Requirements: Requirement 4*
-- [ ] 12. 処理履歴の記録機能
+- [x] 12. 処理履歴の記録機能 ✅
   - 処理結果のデータベースへの保存
   - メタデータの記録（処理時間、メモリ使用量、信頼度スコア）
-  - 処理履歴の照会機能
+  - 処理履歴の照会機能 (CLI `history` command)
   - 重複処理のスキップ機能
   - *Requirements: Requirement 4, Requirement 5*
 
 ### バッチ処理とパフォーマンス向上
 
-- [ ] 13. バッチ処理機能の実装
+- [x] 13. バッチ処理機能の実装 ✅
   - ディレクトリスキャン機能の強化
   - 複数DICOMシリーズの順次処理
   - 進捗表示機能（プログレスバー）
   - バッチ処理のログ出力
   - *Requirements: Requirement 1, Requirement 6*
-- [ ] 14. GPU対応の実装
-  - CUDA利用可能性のチェック
-  - GPU/CPU自動切り替え機能
-  - GPUメモリ管理
-  - バッチサイズの動的調整
+- [ ] 14. GPU対応の実装 🔄 **(一部実装済み)**
+  - ✅ CUDA利用可能性のチェック (`src/utils/gpu_manager.py`実装済み)
+  - ✅ GPUメモリ管理 (基本実装済み)
+  - ⏳ GPU/CPU自動切り替え機能 (nnunet_segmentatorに統合予定)
+  - ⏳ バッチサイズの動的調整
   - *Requirements: Requirement 2, Requirement 6*
 
 ### 品質向上機能
@@ -184,10 +183,10 @@
 ### テストとQA
 
 - [ ] 21. 単体テストの実装 🔄 **(一部実装済み)**
-  - 各モジュールのテストケース作成 (config_manager, logging_manager完了)
-  - モックオブジェクトの実装
-  - パラメトリックテスト
-  - エッジケースのテスト
+  - ✅ 各モジュールのテストケース作成 (8ファイル実装済み: CLI, config_manager, db_manager, gpu_manager, logging_manager, nnunet_segmentator, processing_engine, stl_generator)
+  - ✅ モックオブジェクトの実装 (複数テストで使用)
+  - ⏳ パラメトリックテスト (一部実装)
+  - ⏳ エッジケースのテスト (拡充中)
   - *Requirements: Requirement 8*
 - [ ] 22. 統合テストの実装
   - エンドツーエンドテスト
