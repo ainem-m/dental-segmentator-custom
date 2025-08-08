@@ -128,7 +128,9 @@ class TestSTLGenerator:
         segmentation = self.create_test_segmentation()
         tooth_mask = generator._extract_single_tooth(segmentation, tooth_label=1)
         
-        vertices, faces = generator._generate_mesh_from_mask(tooth_mask)
+        # Test spacing (typical CT scan spacing)
+        spacing = (0.5, 0.5, 0.5)
+        vertices, faces = generator._generate_mesh_from_mask(tooth_mask, spacing)
         
         assert isinstance(vertices, np.ndarray)
         assert isinstance(faces, np.ndarray)

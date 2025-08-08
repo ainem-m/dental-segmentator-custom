@@ -18,9 +18,9 @@ from contextlib import contextmanager
 
 from sqlalchemy import (
     create_engine, Column, Integer, String, Float, DateTime, Boolean,
-    Text, JSON, ForeignKey, Index, func
+    Text, JSON, ForeignKey, Index, func, text
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, Session
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -173,8 +173,6 @@ class DatabaseManager:
     def __init__(
         self,
         database_path: str,
-        pool_size: int = 5,
-        max_overflow: int = 10,
         echo: bool = False
     ):
         """
@@ -182,8 +180,6 @@ class DatabaseManager:
         
         Args:
             database_path: Path to SQLite database file
-            pool_size: Connection pool size
-            max_overflow: Maximum overflow connections
             echo: Enable SQL query logging
         """
         self.database_path = Path(database_path)
@@ -193,8 +189,6 @@ class DatabaseManager:
         self.engine = create_engine(
             f"sqlite:///{self.database_path}",
             poolclass=StaticPool,
-            pool_size=pool_size,
-            max_overflow=max_overflow,
             echo=echo,
             connect_args={
                 'check_same_thread': False,  # Allow multi-threading
@@ -219,10 +213,10 @@ class DatabaseManager:
             # Set up initial schema version
             with self.get_session() as session:
                 # Check if we need to run initial setup
-                result = session.execute("PRAGMA user_version").fetchone()
+                result = session.execute(text("PRAGMA user_version")).fetchone()
                 if result[0] == 0:
                     # Set initial schema version
-                    session.execute("PRAGMA user_version = 1")
+                    session.execute(text("PRAGMA user_version = 1"))
                     session.commit()
                     logger.info("Database initialized with schema version 1")
                 

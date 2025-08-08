@@ -38,7 +38,7 @@ class TestNnUNetSegmentator:
             device="cpu"
         )
         
-        assert segmentator.model_path == str(self.model_dir)
+        assert str(segmentator.model_path) == str(self.model_dir)
         assert segmentator.device == "cpu"
         assert segmentator.model is None  # Not loaded yet
     

@@ -44,6 +44,7 @@ import skimage
 from skimage import measure, morphology
 
 from ..utils.logging_manager import get_logging_manager
+from ..utils.gpu_manager import get_gpu_manager, setup_gpu_environment
 
 
 @dataclass
@@ -107,7 +108,8 @@ class NnUNetSegmentator:
             component="nnunet_segmentator"
         )
         
-        # Initialize device
+        # Initialize device with GPU manager
+        self.gpu_manager = get_gpu_manager()
         self.device = self._setup_device(device)
         
         # Model configuration
@@ -127,7 +129,7 @@ class NnUNetSegmentator:
     
     def _setup_device(self, device: str) -> str:
         """
-        Setup processing device.
+        Setup processing device using GPU manager.
         
         Args:
             device: Requested device ('auto', 'cpu', 'cuda')
@@ -139,19 +141,40 @@ class NnUNetSegmentator:
             self.logger.warning("PyTorch not available, using CPU-only mode")
             return "cpu"
         
+        # Use GPU manager for intelligent device selection
         if device == "auto":
-            if torch.cuda.is_available():
-                device = "cuda"
-                self.logger.info(f"CUDA available, using GPU: {torch.cuda.get_device_name()}")
-            else:
-                device = "cpu"
-                self.logger.info("CUDA not available, using CPU")
-        elif device == "cuda":
-            if not torch.cuda.is_available():
-                self.logger.warning("CUDA requested but not available, falling back to CPU")
-                device = "cpu"
+            # Estimate memory requirement for typical dental segmentation
+            estimated_memory_mb = self.gpu_manager.estimate_memory_requirement(
+                input_shape=(1, 1, 512, 512, 128),  # Typical CBCT volume size
+                dtype_size=4,  # float32
+                safety_factor=3.0  # Account for model parameters and intermediate results
+            )
+            selected_device = self.gpu_manager.select_best_device(
+                required_memory_mb=estimated_memory_mb
+            )
+        else:
+            selected_device = device
+            if not self.gpu_manager.validate_device_compatibility(device):
+                self.logger.warning(f"Device {device} not compatible, falling back to CPU")
+                selected_device = "cpu"
         
-        return device
+        # Log device information
+        if selected_device.startswith("cuda"):
+            gpu_infos = self.gpu_manager.get_gpu_info()
+            if gpu_infos:
+                device_id = int(selected_device.split(':')[1]) if ':' in selected_device else 0
+                gpu_info = next((info for info in gpu_infos if info.device_id == device_id), None)
+                if gpu_info:
+                    self.logger.info(f"Using CUDA GPU: {gpu_info.name} "
+                                   f"({gpu_info.memory_free:.1f}MB free)")
+        elif selected_device == "mps":
+            memory_info = self.gpu_manager.get_memory_info("mps")
+            self.logger.info(f"Using MPS (Apple Silicon GPU) "
+                           f"({memory_info['free']:.1f}MB estimated available)")
+        else:
+            self.logger.info("Using CPU for segmentation")
+        
+        return selected_device
     
     def download_model(self, force_redownload: bool = False) -> bool:
         """
@@ -411,8 +434,45 @@ class NnUNetSegmentator:
         if not self.is_model_loaded or self.model is None:
             raise SegmentationError("Model not loaded")
         
-        # For MVP, use mock inference
-        return self.model.predict(volume)
+        # Use GPU context manager for inference
+        with self.gpu_manager.device_context(self.device):
+            # Monitor memory before inference
+            memory_info = self.gpu_manager.get_memory_info(self.device)
+            self.logger.debug(f"Memory before inference: {memory_info}")
+            
+            try:
+                # Clear cache before inference to free up memory
+                if self.device.startswith("cuda") or self.device == "mps":
+                    self.gpu_manager.clear_cache(self.device)
+                
+                # For MVP, use mock inference
+                result = self.model.predict(volume)
+                
+                # Monitor memory after inference
+                memory_info = self.gpu_manager.get_memory_info(self.device)
+                self.logger.debug(f"Memory after inference: {memory_info}")
+                
+                return result
+                
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    self.logger.error(f"GPU out of memory during inference: {e}")
+                    # Try to free memory and retry on CPU if possible
+                    if self.device.startswith("cuda") or self.device == "mps":
+                        self.gpu_manager.clear_cache()
+                        self.logger.info("Falling back to CPU due to GPU memory issues")
+                        # Switch to CPU for this inference
+                        original_device = self.device
+                        self.device = "cpu"
+                        try:
+                            result = self.model.predict(volume)
+                            return result
+                        finally:
+                            self.device = original_device
+                    else:
+                        raise SegmentationError(f"Out of memory error: {e}")
+                else:
+                    raise SegmentationError(f"Inference failed: {e}")
     
     def _postprocess_segmentation(self, segmentation: np.ndarray) -> np.ndarray:
         """

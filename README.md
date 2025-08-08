@@ -14,12 +14,14 @@
 - ⚡ **バッチ処理**: 複数のDICOMファイルの自動一括処理
 - 🔧 **設定可能**: YAMLファイルによる柔軟な設定管理
 - 📊 **処理履歴**: SQLiteデータベースによる処理結果の記録・管理
-- 🚀 **GPU対応**: CUDA対応による高速処理
+- 🚀 **マルチGPU対応**: CUDA & MPS (Apple Silicon) による高速処理
+- 🧠 **インテリジェント処理**: 自動デバイス選択・メモリ管理・エラー回復
+- 🔍 **包括的テスト**: 44%カバレッジの自動テストスイート
 
 ## Requirements
 
 - Python 3.9+
-- CUDA対応GPU (推奨、CPU処理も可能)
+- GPU: CUDA対応GPU または Apple Silicon (推奨、CPU処理も可能)
 - 8GB以上のメモリ (GPU使用時は追加でGPUメモリが必要)
 
 ## Installation
@@ -71,7 +73,7 @@ Options:
   --output PATH         出力STLファイルの保存先ディレクトリ
   --config PATH         設定ファイルのパス (デフォルト: config/default.yaml)
   --batch               バッチ処理モード
-  --gpu / --no-gpu      GPU使用の有無 (デフォルト: 自動検出)
+  --gpu / --no-gpu      GPU使用の有無 (CUDA/MPS自動検出, デフォルト: 自動選択)
   --log-level LEVEL     ログレベル (DEBUG|INFO|WARNING|ERROR)
   --help               ヘルプメッセージの表示
 ```

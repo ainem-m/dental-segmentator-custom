@@ -584,6 +584,33 @@ class SystemDependencyError(DentalSegmentatorError):
         )
 
 
+# Database Errors
+class DatabaseError(DentalSegmentatorError):
+    """Base class for database-related errors."""
+    
+    def __init__(
+        self,
+        message: str,
+        table: Optional[str] = None,
+        operation: Optional[str] = None,
+        **kwargs
+    ):
+        context = kwargs.get('context', {})
+        if table:
+            context['table'] = table
+        if operation:
+            context['operation'] = operation
+            
+        super().__init__(
+            message,
+            severity=ErrorSeverity.HIGH,
+            category=ErrorCategory.SYSTEM,
+            recovery_hint="Check database connection and data integrity",
+            context=context,
+            **kwargs
+        )
+
+
 # Error Handler Utility Functions
 def handle_error_with_recovery(
     error: Exception,
